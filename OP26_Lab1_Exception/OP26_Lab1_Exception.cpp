@@ -3,7 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
-#include <limits>
+#include <algorithm>
 
 using namespace std;
 
@@ -114,17 +114,23 @@ double func_xyz(double x, double y, double z,
 
 /* ===================== ТЕКСТ ===================== */
 
-double GetFromText(const string& text) {
+bool GetFromText(const string& text, double& t) {
     ifstream fin("dat3.dat");
-    if (!fin) return 0;
+    if (!fin) {
+        cout << "dat3.dat not open\n";
+        return false;
+    }
 
     string key;
     double val;
+
     while (fin >> key >> val) {
-        if (key == text)
-            return val;
+        if (key == text) {
+            t = val;
+            return true;
+        }
     }
-    return 0;
+    return false;
 }
 
 double Min4(double a, double b, double c, double d) {
@@ -132,11 +138,17 @@ double Min4(double a, double b, double c, double d) {
 }
 
 double Ktext(double x, double y, double z, const string& text) {
-    double t = GetFromText(text);
-    if (text.empty())
-        return Min4(x, y, z, x - z);
+    double t;
+    bool found = GetFromText(text, t);
+
+    if (!found) {
+        cout << "Word \"" << text << "\" not in dat3.dat\n";
+        return 1.0;   // контрольне значення
+    }
+
     if (t <= 0)
         return Min4(x - y, x - z, y - z, z);
+
     return t;
 }
 
@@ -192,6 +204,8 @@ int main() {
 
     double result = func_regr(r, m, k);
 
+    cout << "=== THIS FILE IS COMPILED ===" << endl;
     cout << "Result = " << result << endl;
+
     return 0;
 }
